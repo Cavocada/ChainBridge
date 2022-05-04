@@ -15,7 +15,7 @@ import (
 )
 
 // Number of blocks to wait for an finalization event
-const ExecuteBlockWatchLimit = 100
+//const ExecuteBlockWatchLimit = 100
 
 // Time between retrying a failed tx
 const TxRetryInterval = time.Second * 2
@@ -189,8 +189,8 @@ func (w *writer) createGenericDepositProposal(m msg.Message) bool {
 func (w *writer) watchThenExecute(m msg.Message, data []byte, dataHash [32]byte, latestBlock *big.Int) {
 	w.log.Info("Watching for finalization event", "src", m.Source, "nonce", m.DepositNonce)
 
-	// watching for the latest block, querying and matching the finalized event will be retried up to ExecuteBlockWatchLimit times
-	for i := 0; i < ExecuteBlockWatchLimit; i++ {
+	// watching for the latest block, querying and matching the finalized event will be retried up to ExecuteWatchLimit times
+	for i := 0; i < w.cfg.executeWatchLimit; i++ {
 		select {
 		case <-w.stop:
 			return

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strconv"
 
 	"github.com/ChainSafe/ChainBridge/connections/ethereum/egs"
 	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
@@ -17,6 +18,7 @@ import (
 
 const DefaultGasLimit = 6721975
 const DefaultGasPrice = 20000000000
+const DefaultExecuteWatchLimit = 100
 const DefaultBlockConfirmations = 10
 const DefaultGasMultiplier = 1
 
@@ -31,6 +33,7 @@ var (
 	GasMultiplier         = "gasMultiplier"
 	HttpOpt               = "http"
 	StartBlockOpt         = "startBlock"
+	ExecuteWatchLimitOpt  = "executeWatchLimit"
 	BlockConfirmationsOpt = "blockConfirmations"
 	EGSApiKey             = "egsApiKey"
 	EGSSpeed              = "egsSpeed"
@@ -54,6 +57,7 @@ type Config struct {
 	gasMultiplier          *big.Float
 	http                   bool // Config for type of connection
 	startBlock             *big.Int
+	executeWatchLimit      int // Number of blocks to wait for an finalization event
 	blockConfirmations     *big.Int
 	egsApiKey              string // API key for ethgasstation to query gas prices
 	egsSpeed               string // The speed which a transaction should be processed: average, fast, fastest. Default: fast
@@ -80,6 +84,7 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		http:                   false,
 		startBlock:             big.NewInt(0),
 		blockConfirmations:     big.NewInt(0),
+		executeWatchLimit:      0,
 		egsApiKey:              "",
 		egsSpeed:               "",
 	}
@@ -156,6 +161,20 @@ func parseChainConfig(chainCfg *core.ChainConfig) (*Config, error) {
 		} else {
 			return nil, fmt.Errorf("unable to parse %s", StartBlockOpt)
 		}
+	}
+
+	if executeWatchLimit, ok := chainCfg.Opts[ExecuteWatchLimitOpt]; ok && executeWatchLimit != "" {
+		val, err := strconv.Atoi(executeWatchLimit)
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse %s", ExecuteWatchLimitOpt)
+		} else {
+			config.executeWatchLimit = val
+			fmt.Println("executeWatchLimit: ", config.executeWatchLimit)
+			delete(chainCfg.Opts, ExecuteWatchLimitOpt)
+		}
+	} else {
+		config.executeWatchLimit = DefaultExecuteWatchLimit
+		delete(chainCfg.Opts, ExecuteWatchLimitOpt)
 	}
 
 	if blockConfirmations, ok := chainCfg.Opts[BlockConfirmationsOpt]; ok && blockConfirmations != "" {

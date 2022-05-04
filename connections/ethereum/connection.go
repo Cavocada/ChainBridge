@@ -24,15 +24,16 @@ import (
 var BlockRetryInterval = time.Second * 5
 
 type Connection struct {
-	endpoint      string
-	http          bool
-	kp            *secp256k1.Keypair
-	gasLimit      *big.Int
-	maxGasPrice   *big.Int
-	gasMultiplier *big.Float
-	egsApiKey     string
-	egsSpeed      string
-	conn          *ethclient.Client
+	endpoint          string
+	http              bool
+	kp                *secp256k1.Keypair
+	gasLimit          *big.Int
+	maxGasPrice       *big.Int
+	gasMultiplier     *big.Float
+	executeWatchLimit int
+	egsApiKey         string
+	egsSpeed          string
+	conn              *ethclient.Client
 	// signer    ethtypes.Signer
 	opts     *bind.TransactOpts
 	callOpts *bind.CallOpts
@@ -43,18 +44,19 @@ type Connection struct {
 }
 
 // NewConnection returns an uninitialized connection, must call Connection.Connect() before using.
-func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, gsnApiKey, gsnSpeed string) *Connection {
+func NewConnection(endpoint string, http bool, kp *secp256k1.Keypair, log log15.Logger, gasLimit, gasPrice *big.Int, gasMultiplier *big.Float, watchLimit int, gsnApiKey, gsnSpeed string) *Connection {
 	return &Connection{
-		endpoint:      endpoint,
-		http:          http,
-		kp:            kp,
-		gasLimit:      gasLimit,
-		maxGasPrice:   gasPrice,
-		gasMultiplier: gasMultiplier,
-		egsApiKey:     gsnApiKey,
-		egsSpeed:      gsnSpeed,
-		log:           log,
-		stop:          make(chan int),
+		endpoint:          endpoint,
+		http:              http,
+		kp:                kp,
+		gasLimit:          gasLimit,
+		maxGasPrice:       gasPrice,
+		gasMultiplier:     gasMultiplier,
+		executeWatchLimit: watchLimit,
+		egsApiKey:         gsnApiKey,
+		egsSpeed:          gsnSpeed,
+		log:               log,
+		stop:              make(chan int),
 	}
 }
 
