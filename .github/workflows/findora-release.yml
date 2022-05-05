@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/FindoraNetwork/chainbridge
+          images: ghcr.io/FindoraNetwork/ChainBridge
           tags: |
             type=raw,value={{tag}}
             type=raw,value=latest
