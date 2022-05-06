@@ -82,8 +82,11 @@ func setupBlockstore(cfg *Config, kp *secp256k1.Keypair) (*blockstore.Blockstore
 			return nil, err
 		}
 
-		if latestBlock.Cmp(cfg.startBlock) == 1 {
-			cfg.startBlock = latestBlock
+		// there has an issue that latestBlock might be nil then causing panic while Cmp
+		if latestBlock != nil {
+			if latestBlock.Cmp(cfg.startBlock) == 1 {
+				cfg.startBlock = latestBlock
+			}
 		}
 	}
 
